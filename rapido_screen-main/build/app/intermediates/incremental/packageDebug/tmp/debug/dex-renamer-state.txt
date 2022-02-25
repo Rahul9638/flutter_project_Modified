@@ -1,0 +1,4 @@
+#Sat Feb 19 15:39:04 IST 2022
+base.0=/home/rahul/Documents/rapido_screen-main/build/app/intermediates/dex/debug/mergeDexDebug/classes.dex
+renamed.0=classes.dex
+path.0=classes.dex
