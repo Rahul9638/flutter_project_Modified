@@ -43,7 +43,8 @@ class Products with ChangeNotifier {
   ];
   // var _showFavoritesOnly = false;
   final String authToken;
-  Products(this.authToken, this._items);
+  final String userId;
+  Products(this.authToken, this.userId, this._items);
 
   List<Product> get items {
     // if (_showFavoritesOnly) {
@@ -71,7 +72,8 @@ class Products with ChangeNotifier {
   // }
 
   Future<void> fetchAndSetProducts() async {
-    final url = "https://shopping-app-e1881-default-rtdb.asia-southeast1.firebasedatabase.app/product.json?auth=$authToken";
+    var url =
+        "https://shopping-app-e1881-default-rtdb.asia-southeast1.firebasedatabase.app/product.json?auth=$authToken";
     // final url = Uri.https('flutter-update.firebaseio.com', '/products.json');
     try {
       final response = await http.get(Uri.parse(url));
@@ -79,6 +81,11 @@ class Products with ChangeNotifier {
       if (extractedData == null) {
         return;
       }
+      url =
+          "https://shopping-app-e1881-default-rtdb.asia-southeast1.firebasedatabase.app/userFavorites/$userId.json?auth=$authToken";
+      final favoriteResponse = await http.get(Uri.parse(url));
+      final favoriteData = json.decode(favoriteResponse.body);
+      print("h--------------------$extractedData");
       final List<Product> loadedProducts = [];
       extractedData.forEach((prodId, prodData) {
         loadedProducts.add(Product(
@@ -86,7 +93,8 @@ class Products with ChangeNotifier {
           title: prodData['title'],
           description: prodData['description'],
           price: prodData['price'],
-          isFavorite: prodData['isFavorite'],
+          isFavorite:
+              favoriteData == null ? false : favoriteData[prodId] ?? false,
           imageUrl: prodData['imageUrl'],
         ));
       });
@@ -98,8 +106,9 @@ class Products with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
-    final url = "https://shopping-app-e1881-default-rtdb.asia-southeast1.firebasedatabase.app/product.json?auth=$authToken";
-    
+    final url =
+        "https://shopping-app-e1881-default-rtdb.asia-southeast1.firebasedatabase.app/product.json?auth=$authToken";
+
     // final url = Uri.https('flutter-update.firebaseio.com', '/products.json');
     try {
       final response = await http.post(
@@ -131,8 +140,9 @@ class Products with ChangeNotifier {
   Future<void> updateProduct(String id, Product newProduct) async {
     final prodIndex = _items.indexWhere((prod) => prod.id == id);
     if (prodIndex >= 0) {
-      final url = "https://shopping-app-e1881-default-rtdb.asia-southeast1.firebasedatabase.app/product/$id.json?auth=$authToken";
-    
+      final url =
+          "https://shopping-app-e1881-default-rtdb.asia-southeast1.firebasedatabase.app/product/$id.json?auth=$authToken";
+
       // final url = Uri.https('flutter-update.firebaseio.com', '/products/$id.json');
       await http.patch(Uri.parse(url),
           body: json.encode({
@@ -149,8 +159,9 @@ class Products with ChangeNotifier {
   }
 
   Future<void> deleteProduct(String id) async {
-    final url = "https://shopping-app-e1881-default-rtdb.asia-southeast1.firebasedatabase.app/product/$id.json?auth=$authToken";
-    
+    final url =
+        "https://shopping-app-e1881-default-rtdb.asia-southeast1.firebasedatabase.app/product/$id.json?auth=$authToken";
+
     // final url = Uri.https('flutter-update.firebaseio.com', '/products/$id.json');
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     var existingProduct = _items[existingProductIndex];

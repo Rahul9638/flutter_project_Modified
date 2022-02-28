@@ -26,6 +26,8 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProxyProvider<Auth, Products>(
             update: (ctx, auth, previousProducts) => Products(
               auth.token,
+
+              auth.userId,
               previousProducts == null ? [] : previousProducts.items,
             ),
           ),
@@ -39,6 +41,7 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ],
+      
         child: Consumer<Auth>(
           builder: (ctx, auth, _) => MaterialApp(
               title: 'MyShop',
