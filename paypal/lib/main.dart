@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'MnM mobile Payment'),
+      home: const MyHomePage(title: 'MnMPayment'),
     );
   }
 }
@@ -31,6 +31,27 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  static final String tokenizationKey = 'sandbox_x67928j3_m77f4f45g9k387nr';
+  void showNonce(BraintreePaymentMethodNonce nonce) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Payment method nonce:'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Text('Nonce: ${nonce.nonce}'),
+            SizedBox(height: 16),
+            Text('Type label: ${nonce.typeLabel}'),
+            SizedBox(height: 16),
+            Text('Description: ${nonce.description}'),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,25 +59,21 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-          child: ElevatedButton(
-        child: Text("Pay"),
-        onPressed: () async {
-          var request = BraintreeDropInRequest(
-            tokenizationKey: "sandbox_x67928j3_m77f4f45g9k387nr",
-            collectDeviceData: true,
-            paypalRequest:
-                BraintreePayPalRequest(amount: "20.00", displayName: "MnM"),
-            cardEnabled: true,
-          );
-
-          BraintreeDropInResult? result = await BraintreeDropIn.start(request);
-          if (result != null) {
-            print(
-                "description of the payment:- ${result.paymentMethodNonce.description}");
-            print("result of payment:- ${result.paymentMethodNonce.nonce}");
-          }
-        },
-      )),
+        child: ElevatedButton(
+          onPressed: () async {
+            final request =
+                BraintreePayPalRequest(amount: '13.37', displayName: "MnM");
+            final result = await Braintree.requestPaypalNonce(
+              tokenizationKey,
+              request,
+            );
+            if (result != null) {
+              showNonce(result);
+            }
+          },
+          child: Text('Pay'),
+        ),
+      ),
     );
   }
 }
